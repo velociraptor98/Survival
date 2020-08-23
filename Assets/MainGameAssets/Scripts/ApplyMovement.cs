@@ -14,7 +14,8 @@ public class ApplyMovement : MonoBehaviour
     protected Vector3 movementDirection = Vector3.zero;
     protected float desRotationAngle = 0;
     private int inputVerticalDirection = 0;
-    [SerializeField] private float rotationThreshold;
+    [SerializeField] private int rotationThreshold;
+    protected HumanoidAnimation animation;
     public void HandleMovement(Vector2 Input)
     {
         if(charaterController.isGrounded)
@@ -31,11 +32,13 @@ public class ApplyMovement : MonoBehaviour
                 }
                 movementDirection = Input.y * transform.forward * movementSpeed;    
             }
+            else
+            {
+                animation.SetMovementFloat(0);
+                movementDirection = Vector3.zero;
+            }
         }
-        else
-        {
-            movementDirection = Vector3.zero;
-        }
+        
     }
     public void HandleMovementDirection(Vector3 input)
     {
@@ -50,6 +53,7 @@ public class ApplyMovement : MonoBehaviour
     void Start()
     {
         charaterController = GetComponent<CharacterController>();
+        animation = GetComponent<HumanoidAnimation>();
     }
 
     // Update is called once per frame
@@ -59,7 +63,9 @@ public class ApplyMovement : MonoBehaviour
         {
             if(movementDirection.magnitude>0)
             {
+                var animationSpeedMultiplier = animation.SetCorrectAnimation(desRotationAngle, rotationThreshold, inputVerticalDirection);
                 RotateAgent();
+                movementDirection *= animationSpeedMultiplier;
             }
         }
         movementDirection.y -= gravity;
