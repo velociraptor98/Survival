@@ -14,6 +14,7 @@ public class ApplyMovement : MonoBehaviour
     protected Vector3 movementDirection = Vector3.zero;
     protected float desRotationAngle = 0;
     private int inputVerticalDirection = 0;
+    [SerializeField] private float rotationThreshold;
     public void HandleMovement(Vector2 Input)
     {
         if(charaterController.isGrounded)
@@ -36,6 +37,16 @@ public class ApplyMovement : MonoBehaviour
             movementDirection = Vector3.zero;
         }
     }
+    public void HandleMovementDirection(Vector3 input)
+    {
+        desRotationAngle = Vector3.Angle(transform.forward, input);
+        float crossProduct = Vector3.Cross(transform.forward, input).y;
+        if(crossProduct < 0)
+        {
+            desRotationAngle *= -1;
+        }
+
+    }
     void Start()
     {
         charaterController = GetComponent<CharacterController>();
@@ -44,7 +55,21 @@ public class ApplyMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(charaterController.isGrounded)
+        {
+            if(movementDirection.magnitude>0)
+            {
+                RotateAgent();
+            }
+        }
         movementDirection.y -= gravity;
         charaterController.Move(movementDirection * Time.deltaTime * movementSpeed);
+    }
+    public void RotateAgent()
+    {
+        if(desRotationAngle > rotationThreshold || desRotationAngle < -rotationThreshold)
+        {
+            transform.Rotate(Vector3.up * desRotationAngle * rotateSpeed * Time.deltaTime);
+        }
     }
 }
