@@ -16,6 +16,15 @@ public class ApplyMovement : MonoBehaviour
     private int inputVerticalDirection = 0;
     [SerializeField] private int rotationThreshold;
     protected HumanoidAnimation animation;
+    bool isJumping = false;
+    public float jumpSpeed;
+    public void HandleJump()
+    {
+        if(charaterController.isGrounded)
+        {
+            isJumping = true;
+        }
+    }
     public void HandleMovement(Vector2 Input)
     {
         if(charaterController.isGrounded)
@@ -69,6 +78,12 @@ public class ApplyMovement : MonoBehaviour
             }
         }
         movementDirection.y -= gravity;
+        if(isJumping)
+        {
+            isJumping = false;
+            movementDirection.y = jumpSpeed;
+            animation.SetMovementFloat(0);
+        }
         charaterController.Move(movementDirection * Time.deltaTime * movementSpeed);
     }
     public void RotateAgent()
